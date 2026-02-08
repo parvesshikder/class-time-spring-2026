@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Schedule - Estonia & Bangladesh Time</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1000px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .status-banner {
+            padding: 25px 30px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .status-banner.free {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .status-banner.busy {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .time-zones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .timezone-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .timezone-box h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .time-display {
+            margin: 10px 0;
+        }
+
+        .time-24hr {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #333;
+            margin: 5px 0;
+        }
+
+        .time-12hr {
+            font-size: 1.4em;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .timezone-box .date {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .schedule {
+            padding: 30px;
+        }
+
+        .schedule h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .day-schedule {
+            margin-bottom: 25px;
+        }
+
+        .day-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .class-count {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .class-item {
+            display: grid;
+            grid-template-columns: 140px 1fr 120px;
+            gap: 15px;
+            align-items: center;
+            padding: 15px 20px;
+            margin: 8px 0;
+            border-radius: 10px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .class-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .class-item.current {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(235, 51, 73, 0.3);
+        }
+
+        .class-time {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.95em;
+        }
+
+        .class-item.current .class-time {
+            color: white;
+        }
+
+        .class-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .class-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .class-code {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .class-item.current .class-code {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .class-location {
+            text-align: right;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .class-item.current .class-location {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .no-classes {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .week-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 30px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #1565c0;
+        }
+
+        @media (max-width: 768px) {
+            .time-zones {
+                grid-template-columns: 1fr;
+            }
+
+            .class-item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .class-location {
+                text-align: left;
+            }
+
+            .time-24hr {
+                font-size: 1.8em;
+            }
+
+            .time-12hr {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Parves’ Class Schedule</h1>
+            <p>University of Tartu - Spring 2026</p>
+        </div>
+
+        <div class="status-banner" id="statusBanner">
+            <span id="statusText">Checking schedule...</span>
+        </div>
+
+        <div class="time-zones">
+            <div class="timezone-box">
+                <h3>🇪🇪 Estonia Time (EET/EEST)</h3>
+                <div class="time-display">
+                    <div class="time-24hr" id="estoniaTime24">--:--:--</div>
+                    <div class="time-12hr" id="estoniaTime12">-- : -- : -- --</div>
+                </div>
+                <div class="date" id="estoniaDate">---</div>
+            </div>
+            <div class="timezone-box">
+                <h3>🇧🇩 Bangladesh Time (BST)</h3>
+                <div class="time-display">
+                    <div class="time-24hr" id="bangladeshTime24">--:--:--</div>
+                    <div class="time-12hr" id="bangladeshTime12">-- : -- : -- --</div>
+                </div>
+                <div class="date" id="bangladeshDate">---</div>
+            </div>
+        </div>
+
+        <div class="week-info">
+            <strong>ℹ️ Week 24 Schedule:</strong> Master's program courses featuring Software Security, Cloud Computing, MLOps, Business Process Mining, and more!
+        </div>
+
+        <div class="schedule">
+            <h2>📅 Weekly Schedule</h2>
+            <div id="scheduleContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Your actual class schedule from University of Tartu - Week 24, Spring 2026
+        const schedule = {
+            Monday: [
+                { time: '10:15-12:00', name: 'Software Security', code: 'LTAT.03.024', location: 'Lecture' },
+                { time: '12:15-14:00', name: 'Software Security', code: 'LTAT.03.024', location: 'Practical' },
+                { time: '14:15-16:00', name: 'Enterprise System Integration', code: 'MTAT.03.229', location: 'Lecture' }
+            ],
+            Tuesday: [
+                { time: '12:15-14:00', name: 'Cloud Computing', code: 'LTAT.06.008', location: 'Lecture' },
+                { time: '14:15-16:00', name: 'Cloud Computing', code: 'LTAT.06.008', location: 'Practical' },
+                { time: '16:15-18:00', name: 'Enterprise System Integration', code: 'MTAT.03.229', location: 'Practical' }
+            ],
+            Wednesday: [
+                { time: '10:15-12:00', name: 'Software Engineering Master\'s Seminar I', code: 'LTAT.00.028', location: 'Seminar' }
+            ],
+            Thursday: [
+                { time: '10:15-12:00', name: 'Business Process Mining', code: 'LTAT.05.025', location: 'Lecture' },
+                { time: '12:15-14:00', name: 'Business Process Mining', code: 'LTAT.05.025', location: 'Practical' },
+                { time: '14:15-16:00', name: 'MLOps Fundamentals', code: 'LTAT.02.038', location: 'Lecture' }
+            ],
+            Friday: [
+                { time: '08:15-10:00', name: 'MLOps Fundamentals', code: 'LTAT.02.038', location: 'Practical' },
+                { time: '10:15-12:00', name: 'Software Product Management', code: 'MTAT.03.325', location: 'Lecture' },
+                { time: '12:15-14:00', name: 'Software Product Management', code: 'MTAT.03.325', location: 'Practical' }
+            ],
+            Saturday: [],
+            Sunday: []
+        };
+
+        function updateTimes() {
+            const now = new Date();
+
+            // Estonia time (EET/EEST)
+            const estoniaTime24 = now.toLocaleString('en-US', {
+                timeZone: 'Europe/Tallinn',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+
+            const estoniaTime12 = now.toLocaleString('en-US', {
+                timeZone: 'Europe/Tallinn',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            
+            const estoniaDate = now.toLocaleString('en-US', {
+                timeZone: 'Europe/Tallinn',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Bangladesh time (BST)
+            const bangladeshTime24 = now.toLocaleString('en-US', {
+                timeZone: 'Asia/Dhaka',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+
+            const bangladeshTime12 = now.toLocaleString('en-US', {
+                timeZone: 'Asia/Dhaka',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            
+            const bangladeshDate = now.toLocaleString('en-US', {
+                timeZone: 'Asia/Dhaka',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            document.getElementById('estoniaTime24').textContent = estoniaTime24;
+            document.getElementById('estoniaTime12').textContent = estoniaTime12;
+            document.getElementById('estoniaDate').textContent = estoniaDate;
+            
+            document.getElementById('bangladeshTime24').textContent = bangladeshTime24;
+            document.getElementById('bangladeshTime12').textContent = bangladeshTime12;
+            document.getElementById('bangladeshDate').textContent = bangladeshDate;
+
+            checkCurrentStatus();
+        }
+
+        function checkCurrentStatus() {
+            const now = new Date();
+            const estoniaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Tallinn' }));
+            const dayName = estoniaTime.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'Europe/Tallinn' });
+            const currentMinutes = estoniaTime.getHours() * 60 + estoniaTime.getMinutes();
+
+            const todayClasses = schedule[dayName] || [];
+            let isBusy = false;
+            let currentClass = null;
+
+            for (let cls of todayClasses) {
+                const [startTime, endTime] = cls.time.split('-');
+                const [startHour, startMin] = startTime.split(':').map(Number);
+                const [endHour, endMin] = endTime.split(':').map(Number);
+                
+                const startMinutes = startHour * 60 + startMin;
+                const endMinutes = endHour * 60 + endMin;
+
+                if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
+                    isBusy = true;
+                    currentClass = cls;
+                    break;
+                }
+            }
+
+            const statusBanner = document.getElementById('statusBanner');
+            const statusText = document.getElementById('statusText');
+
+            if (isBusy) {
+                statusBanner.className = 'status-banner busy';
+                statusText.textContent = `🔴 IN CLASS: ${currentClass.name} (${currentClass.location})`;
+            } else {
+                statusBanner.className = 'status-banner free';
+                const nextClass = findNextClass(dayName, currentMinutes);
+                if (nextClass) {
+                    if (nextClass.day) {
+                        statusText.textContent = `✅ FREE - Next class: ${nextClass.name} on ${nextClass.day} at ${nextClass.time.split('-')[0]}`;
+                    } else {
+                        statusText.textContent = `✅ FREE - Next class: ${nextClass.name} at ${nextClass.time.split('-')[0]}`;
+                    }
+                } else {
+                    statusText.textContent = '✅ FREE - No more classes this week!';
+                }
+            }
+        }
+
+        function findNextClass(currentDay, currentMinutes) {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const currentDayIndex = days.indexOf(currentDay);
+
+            // Check remaining classes today
+            const todayClasses = schedule[currentDay] || [];
+            for (let cls of todayClasses) {
+                const [startTime] = cls.time.split('-');
+                const [startHour, startMin] = startTime.split(':').map(Number);
+                const startMinutes = startHour * 60 + startMin;
+                
+                if (startMinutes > currentMinutes) {
+                    return cls;
+                }
+            }
+
+            // Check next days
+            for (let i = 1; i < 7; i++) {
+                const nextDayIndex = (currentDayIndex + i) % 7;
+                const nextDay = days[nextDayIndex];
+                const nextDayClasses = schedule[nextDay] || [];
+                if (nextDayClasses.length > 0) {
+                    return { ...nextDayClasses[0], day: nextDay };
+                }
+            }
+
+            return null;
+        }
+
+        function renderSchedule() {
+            const container = document.getElementById('scheduleContainer');
+            const now = new Date();
+            const estoniaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Tallinn' }));
+            const currentDay = estoniaTime.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'Europe/Tallinn' });
+            const currentMinutes = estoniaTime.getHours() * 60 + estoniaTime.getMinutes();
+
+            container.innerHTML = '';
+
+            const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+            for (let day of daysOrder) {
+                const classes = schedule[day];
+
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'day-schedule';
+
+                const dayTitle = document.createElement('div');
+                dayTitle.className = 'day-title';
+                
+                const dayText = document.createElement('span');
+                dayText.textContent = day;
+                
+                const classCount = document.createElement('span');
+                classCount.className = 'class-count';
+                classCount.textContent = classes.length === 0 ? 'No classes' : `${classes.length} class${classes.length > 1 ? 'es' : ''}`;
+                
+                dayTitle.appendChild(dayText);
+                dayTitle.appendChild(classCount);
+                dayDiv.appendChild(dayTitle);
+
+                if (classes.length === 0) {
+                    const noClasses = document.createElement('div');
+                    noClasses.className = 'no-classes';
+                    noClasses.textContent = '🎉 Free day!';
+                    dayDiv.appendChild(noClasses);
+                } else {
+                    classes.forEach(cls => {
+                        const classItem = document.createElement('div');
+                        classItem.className = 'class-item';
+
+                        // Check if this is the current class
+                        if (day === currentDay) {
+                            const [startTime, endTime] = cls.time.split('-');
+                            const [startHour, startMin] = startTime.split(':').map(Number);
+                            const [endHour, endMin] = endTime.split(':').map(Number);
+                            
+                            const startMinutes = startHour * 60 + startMin;
+                            const endMinutes = endHour * 60 + endMin;
+
+                            if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
+                                classItem.classList.add('current');
+                            }
+                        }
+
+                        classItem.innerHTML = `
+                            <span class="class-time">${cls.time}</span>
+                            <div class="class-info">
+                                <span class="class-name">${cls.name}</span>
+                                <span class="class-code">${cls.code}</span>
+                            </div>
+                            <span class="class-location">${cls.location}</span>
+                        `;
+
+                        dayDiv.appendChild(classItem);
+                    });
+                }
+
+                container.appendChild(dayDiv);
+            }
+        }
+
+        // Update times every second
+        updateTimes();
+        renderSchedule();
+        setInterval(updateTimes, 1000);
+        setInterval(renderSchedule, 60000); // Re-render schedule every minute to update current class
+    </script>
+</body>
+</html>
